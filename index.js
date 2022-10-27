@@ -2,7 +2,7 @@ import express from "express";
 import {graphqlHTTP} from "express-graphql";
 import schema from "./graphql/schema.js";
 import cors from "cors";
-import * as path from "path";
+import path from "path";
 import config from "./config.js";
 import { fileURLToPath } from 'url';
 
