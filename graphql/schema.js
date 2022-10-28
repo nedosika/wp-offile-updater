@@ -1,32 +1,11 @@
-import {GraphQLID, GraphQLList, GraphQLObjectType, GraphQLSchema} from "graphql";
-import {TaskType} from "./types.js";
+import {GraphQLObjectType, GraphQLSchema} from "graphql";
+import TasksQueries from "./queries/TasksQueries.js";
 
 const rootQuery = new GraphQLObjectType({
     name: 'RootQueryType',
     fields: {
-        task: {
-            type: TaskType,
-            args: {id: {type: GraphQLID}},
-            async resolve(parent, args){
-                return {
-                    id: 0,
-                    name: 'dfdf',
-                    timeout: 0
-                }
-            }
-        },
-        tasks: {
-            type: new GraphQLList(TaskType),
-            async resolve(parent, args){
-                return [{
-                    id: 0,
-                    name: 'dfdf',
-                    timeout: 0
-                }]
-            }
-        }
+        ...TasksQueries
     }
-
 })
 
 const schema = new GraphQLSchema({
