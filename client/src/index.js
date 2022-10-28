@@ -2,10 +2,10 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App';
 import { ApolloClient, InMemoryCache, ApolloProvider } from '@apollo/client';
+import {config} from "./config";
 
 const client = new ApolloClient({
-   // uri: 'https://wp-offline-updater.herokuapp.com/graphql',
-    uri: 'http://localhost:5000/graphql',
+    uri: config.uri,
     cache: new InMemoryCache(),
 });
 
@@ -15,6 +15,5 @@ root.render(
       <ApolloProvider client={client}>
           <App />
       </ApolloProvider>
-
   </React.StrictMode>
 );
