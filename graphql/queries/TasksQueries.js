@@ -1,16 +1,20 @@
 import {GraphQLID, GraphQLList} from "graphql";
-import TasksResolvers from "../resolvers/TasksResolvers.js";
 import {TaskType} from "../types/Taks.js";
+import {getAllTasks, getTaskById} from "../../helpers/apiUtils.js";
 
 const task = {
     type: TaskType,
     args: {id: {type: GraphQLID}},
-    resolve: TasksResolvers.task
+    async resolve(parent, {id}){
+        return await getTaskById(id);
+    }
 }
 
 const tasks = {
     type: new GraphQLList(TaskType),
-    resolve: TasksResolvers.tasks
+    async resolve(){
+        return await getAllTasks();
+    }
 }
 
 const TasksQueries = {
