@@ -1,20 +1,23 @@
 import express from "express";
 import {graphqlHTTP} from "express-graphql";
-import schema from "./graphql/schema.js";
 import cors from "cors";
+import cookieParser from "cookie-parser";
 import path from "path";
-import CONFIG from "./config.js";
 import { fileURLToPath } from 'url';
+
+import schema from "./graphql/schema.js";
+import CONFIG from "./config.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const app = express();
 
+app.use(express.json());
+app.use(cookieParser());
 app.use(cors({
     credentials: true,
     origin: CONFIG.CLIENT_URL
 }));
-
 app.use('/graphql', graphqlHTTP({
     schema,
     graphiql: true

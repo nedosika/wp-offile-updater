@@ -24,8 +24,16 @@ const createUser = async (user) => {
     return id;
 }
 
-const updateUser = () => {
+const updateUser = async (id, user) => {
+    const response = await fetch(`${CONFIG.DATABASE_URL}/${CONFIG.COLLECTIONS.users}/${id}.json`, {
+        method: 'PATCH',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(user)
+    });
 
+    return await response.json();
 }
 
 const UsersService = {
