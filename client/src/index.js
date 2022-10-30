@@ -1,20 +1,43 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App';
-import { ApolloClient, InMemoryCache, ApolloProvider } from '@apollo/client';
+import {ApolloClient, InMemoryCache, ApolloProvider, createHttpLink} from '@apollo/client';
+import {config} from "./config";
+import {BrowserRouter} from "react-router-dom";
+import {SnackbarProvider} from "notistack";
+import DialogProvider from "./contexts/DialogContext";
+import {AuthProvider} from "./contexts/AuthContext";
+import {setContext} from "@apollo/client/link/context";
+
+const httpLink = createHttpLink({uri: config.uri, credentials: 'include'});
+
+const authLink = setContext((_, { headers }) => {
+    const token = localStorage.getItem('accessToken');
+
+    return {
+        headers: {
+            ...headers,
+            authorization: token ? `Bearer ${token}` : "",
+        }
+    }
+});
 
 const client = new ApolloClient({
-   // uri: 'https://wp-offline-updater.herokuapp.com/graphql',
-    uri: 'http://localhost:5000/graphql',
+    link: authLink.concat(httpLink),
     cache: new InMemoryCache(),
 });
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
-  <React.StrictMode>
-      <ApolloProvider client={client}>
-          <App />
-      </ApolloProvider>
-
-  </React.StrictMode>
+    <BrowserRouter>
+        <ApolloProvider client={client}>
+            <SnackbarProvider>
+                <AuthProvider>
+                    <DialogProvider>
+                        <App/>
+                    </DialogProvider>
+                </AuthProvider>
+            </SnackbarProvider>
+        </ApolloProvider>
+    </BrowserRouter>
 );
