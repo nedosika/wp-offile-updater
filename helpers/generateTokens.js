@@ -1,5 +1,5 @@
-import CONFIG from "../config.js";
 import jwt from "jsonwebtoken";
+import CONFIG from "../config.js";
 
 const generateTokens = (payload) => {
     const accessToken = jwt.sign(
@@ -20,17 +20,4 @@ const generateTokens = (payload) => {
     }
 }
 
-const validateToken = ({token, key}) => {
-    try {
-        return jwt.verify(token, key);
-    } catch (error) {
-        return null
-    }
-}
-
-const TokenService = {
-    generateTokens,
-    validateToken
-}
-
-export default TokenService;
+export default generateTokens;

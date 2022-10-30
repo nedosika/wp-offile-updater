@@ -12,15 +12,21 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const app = express();
 
-app.use(express.json());
-app.use(cookieParser());
 app.use(cors({
     credentials: true,
     origin: CONFIG.CLIENT_URL
 }));
-app.use('/graphql', graphqlHTTP({
-    schema,
-    graphiql: true
+app.use(cookieParser());
+app.use('/graphql', graphqlHTTP((req, res) => {
+    const authorizationHeader = req.headers.authorization;
+    const accessToken  = authorizationHeader.split(' ')[1];
+    const {refreshToken} = req.cookies;
+
+    return ({
+        schema,
+        graphiql: true,
+        context: {req, res, accessToken, refreshToken}
+    })
 }));
 
 if (CONFIG.NODE_ENV === "production") {

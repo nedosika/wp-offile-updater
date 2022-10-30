@@ -25,7 +25,11 @@ import {gql, useQuery} from "@apollo/client";
 
 const GET_TASKS = gql`query {
   tasks{
+    id
     name
+    status {
+      start
+    }
   }
 }`;
 
@@ -33,16 +37,8 @@ const formatDate = (date) =>
     `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()} ${date.getHours()}:${date.getMinutes()}`;
 
 const Tasks = () => {
-    const {loading, error, data: {tasks}} = useQuery(GET_TASKS);
+    const {loading, error, data} = useQuery(GET_TASKS);
     const {toggleDialog} = useDialogContext();
-
-    if(loading)
-        return <div>loading...</div>
-
-    if(error)
-        return <div>{error}</div>
-
-    console.log(tasks)
 
     const openCreateTaskDialog = () =>
         toggleDialog(DIALOGS.createTaskDialog);
@@ -62,6 +58,9 @@ const Tasks = () => {
     return (
         <Layout title='Tasks'>
             <Container maxWidth="lg" sx={{mt: 4, mb: 4}}>
+                {
+                    error ? <div>{error}</div> : null
+                }
                 {
                     loading
                         ? <Backdrop
@@ -84,15 +83,15 @@ const Tasks = () => {
                                     </TableRow>
                                 </TableHead>
                                 <TableBody>
-                                    {tasks.map((task) => (
+                                    {data.tasks.map((task) => (
                                         <TableRow
                                             key={task.id}
                                             sx={{'&:last-child td, &:last-child th': {border: 0}}}
                                         >
-                                            <TableCell>{formatDate(new Date(Date.parse(task.start)))}</TableCell>
+                                            <TableCell>{task.status.start}</TableCell>
                                             <TableCell>{task.name}</TableCell>
-                                            <TableCell>{task.status}</TableCell>
-                                            <TableCell>{task.stop && formatDate(new Date(Date.parse(task.stop)))}</TableCell>
+                                            <TableCell>{task.status.error}</TableCell>
+                                            <TableCell>{task.status.stop}</TableCell>
                                             <TableCell>{task.progress && `${task.progress} %`}</TableCell>
                                             <TableCell align='right'>
                                                 <Tooltip title="Added posts" arrow>

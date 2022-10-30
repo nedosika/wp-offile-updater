@@ -4,35 +4,33 @@ import CssBaseline from "@mui/material/CssBaseline";
 import TextField from "@mui/material/TextField";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import Checkbox from "@mui/material/Checkbox";
-import { NavLink } from "react-router-dom";
+import {NavLink} from "react-router-dom";
 import Grid from "@mui/material/Grid";
 import Box from "@mui/material/Box";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
-import { useAuthContext } from "../../contexts/AuthContext";
 import Link from "@mui/material/Link";
 import LoadingButton from "@mui/lab/LoadingButton/LoadingButton";
 import Copyright from "../../components/Copyright";
 
+import {useAuthContext} from "../../contexts/AuthContext";
+
 export default function SignIn() {
-    const { signIn, isLoading } = useAuthContext();
+    const {signIn, isLoading} = useAuthContext();
+
     const handleSubmit = (event) => {
         event.preventDefault();
         const data = new FormData(event.currentTarget);
-        console.log({
-            email: data.get("email"),
-            password: data.get("password"),
-        });
         signIn({
             email: data.get("email"),
-            password: data.get("password"),
-        });
+            password: data.get("password")
+        })
     };
 
     return (
         <Container component="main" maxWidth="xs">
-            <CssBaseline />
+            <CssBaseline/>
             <Box
                 sx={{
                     marginTop: 8,
@@ -41,13 +39,13 @@ export default function SignIn() {
                     alignItems: "center",
                 }}
             >
-                <Avatar sx={{ m: 1, bgcolor: "secondary.main" }}>
-                    <LockOutlinedIcon />
+                <Avatar sx={{m: 1, bgcolor: "secondary.main"}}>
+                    <LockOutlinedIcon/>
                 </Avatar>
                 <Typography component="h1" variant="h5">
                     Sign in
                 </Typography>
-                <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
+                <Box component="form" onSubmit={handleSubmit} noValidate sx={{mt: 1}}>
                     <TextField
                         margin="normal"
                         required
@@ -68,16 +66,16 @@ export default function SignIn() {
                         id="password"
                         autoComplete="current-password"
                     />
-                    <FormControlLabel
-                        control={<Checkbox value="remember" color="primary" />}
-                        label="Remember me"
-                    />
+                    {/*<FormControlLabel*/}
+                    {/*    control={<Checkbox value="remember" color="primary" />}*/}
+                    {/*    label="Remember me"*/}
+                    {/*/>*/}
                     <LoadingButton
                         loading={isLoading}
                         type="submit"
                         fullWidth
                         variant="contained"
-                        sx={{ mt: 3, mb: 2 }}
+                        sx={{mt: 3, mb: 2}}
                     >
                         Sign In
                     </LoadingButton>
@@ -95,7 +93,7 @@ export default function SignIn() {
                     </Grid>
                 </Box>
             </Box>
-            <Copyright sx={{ mt: 8, mb: 4 }} />
+            <Copyright sx={{mt: 8, mb: 4}}/>
         </Container>
     );
 }

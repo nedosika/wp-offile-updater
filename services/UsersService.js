@@ -1,5 +1,10 @@
 import CONFIG from "../config.js";
 
+const getUserById = async (id) => {
+    const response = await fetch(`${CONFIG.DATABASE_URL}/${CONFIG.COLLECTIONS.users}/${id}.json`);
+    return await response.json();
+}
+
 const getAllUsers = async () => {
     const response = await fetch(`${CONFIG.DATABASE_URL}/${CONFIG.COLLECTIONS.users}.json`);
     try {
@@ -39,7 +44,8 @@ const updateUser = async (id, user) => {
 const UsersService = {
     getAllUsers,
     createUser,
-    updateUser
+    updateUser,
+    getUserById
 }
 
 export default UsersService;

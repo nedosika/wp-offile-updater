@@ -1,4 +1,33 @@
-import { createContext, useContext, useState } from "react";
+import {createContext, useContext, useEffect, useState} from "react";
+import {gql, useMutation} from "@apollo/client";
+
+const CHECK_AUTH = gql`mutation refresh {
+  refresh{
+    accessToken,
+    error
+  }
+}`;
+
+const SIGN_IN = gql`mutation signIn($email: String!, $password: String!){
+    signIn(email: $email, password: $password){
+        user{
+            id
+            name
+            email
+        }
+        tokens {
+            refreshToken
+            accessToken
+        }
+    }
+}`
+
+const SIGN_OUT = gql`mutation signOut{
+    signOut{
+        message
+        error
+    }
+}`
 
 const AuthContext = createContext({});
 
@@ -6,97 +35,48 @@ export const useAuthContext = () => useContext(AuthContext);
 
 export const AuthProvider = ({ children }) => {
     const [isAuth, setIsAuth] = useState(false);
-    const [isCheckingAuth, setIsCheckingAuth] = useState(false);
-    const [isLoading, setIsLoading] = useState(false);
-    const [errors, setErrors] = useState([]);
+    const [signInMutation, signInTracking] = useMutation(SIGN_IN);
+    const [signOutMutation, signOutTracking] = useMutation(SIGN_OUT);
+    const [checkAuthMutation, {loading: isCheckingAuth}] = useMutation(CHECK_AUTH);
+    const isLoading = signInTracking.loading || signOutTracking.loading;
 
-    const signIn = ({ email, password }) => {
-        setIsLoading(true);
-        fetch(`${CONFIG.API_URL}/api/users/signin`, {
-            method: "POST",
-            credentials: "include",
-            headers: {
-                "Content-Type": "application/json;charset=utf-8",
-            },
-            body: JSON.stringify({
+    const signIn = ({email, password}) => {
+        signInMutation({
+            variables: {
                 email,
-                password,
-            }),
+                password
+            }
         })
-            .then((response) => response.json())
-            .then((result) => {
-                console.log(result);
-                localStorage.setItem("accessToken", result.data.accessToken);
-                setIsAuth(true);
-            })
-            .finally(() => setIsLoading(false));
-    };
-
-    const signUp = ({ email, password }) => {
-        setIsLoading(true);
-        fetch(`${CONFIG.API_URL}/api/users/signup`, {
-            method: "POST",
-            credentials: "include",
-            headers: {
-                "Content-Type": "application/json;charset=utf-8",
-            },
-            body: JSON.stringify({
-                email,
-                password,
-            }),
+            .then(({data: { signIn: { tokens:  {accessToken}}}}) => {
+            localStorage.setItem("accessToken", accessToken);
+            setIsAuth(true);
         })
-            .then((response) => response.json())
-            .then((result) => {
-                console.log(result);
-                if(result.errors.length) {
-                    setErrors(errors);
-                } else {
-                    localStorage.setItem("accessToken", result.data.accessToken);
-                    setIsAuth(true);
-                }
-            })
-            .catch(error => {
-                console.log(error.message)
-                setErrors([{msg: error.message}])
-            })
-            .finally(() => setIsLoading(false));
-    };
+    }
 
     const signOut = () => {
-        setIsLoading(true);
-        fetch(`${CONFIG.API_URL}/api/users/signout`, {
-            method: "POST",
-            credentials: "include",
-            headers: {
-                "Content-Type": "application/json;charset=utf-8",
-            },
+        signOutMutation().then(() => {
+            localStorage.removeItem("accessToken");
+            setIsAuth(false);
         })
-            .then((response) => response.json())
-            .then((result) => {
-                localStorage.removeItem("accessToken");
-                setIsAuth(false);
-            })
-            .finally(() => setIsLoading(false));
-    };
+    }
 
     const checkAuth = () => {
-        setIsCheckingAuth(true);
-        fetch(`${CONFIG.API_URL}/api/users/refresh`, {
-            method: "GET",
-            credentials: "include",
-        })
-            .then((response) => response.json())
-            .then((result) => {
-                localStorage.setItem("accessToken", result.data.accessToken);
+        checkAuthMutation()
+            .then(({data: { refresh: { accessToken }}}) => {
+                localStorage.setItem("accessToken", accessToken);
                 setIsAuth(true);
-            })
-            .catch((error) => console.log(error))
-            .finally(() => setIsCheckingAuth(false));
-    };
+        })
+    }
+
+    useEffect(() => {
+        if (localStorage.getItem("accessToken")) {
+            checkAuth();
+        }
+    }, []);
 
     return (
         <AuthContext.Provider
-            value={{ isAuth, isCheckingAuth, signIn, signUp, signOut, checkAuth, isLoading, errors }}
+            value={{ isAuth, isCheckingAuth, isLoading, signIn, signOut }}
         >
             {children}
         </AuthContext.Provider>
