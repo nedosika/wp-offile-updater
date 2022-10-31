@@ -4,7 +4,7 @@ import CssBaseline from "@mui/material/CssBaseline";
 import TextField from "@mui/material/TextField";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import Checkbox from "@mui/material/Checkbox";
-import {NavLink} from "react-router-dom";
+import {NavLink, useNavigate} from "react-router-dom";
 import Grid from "@mui/material/Grid";
 import Box from "@mui/material/Box";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
@@ -14,18 +14,39 @@ import Link from "@mui/material/Link";
 import LoadingButton from "@mui/lab/LoadingButton/LoadingButton";
 import Copyright from "../../components/Copyright";
 
-import {useAuthContext} from "../../contexts/AuthContext";
+import {gql, useMutation} from "@apollo/client";
+
+const SIGN_IN = gql`mutation signIn($email: String!, $password: String!){
+    signIn(email: $email, password: $password){
+        user{
+            id
+            name
+            email
+        }
+        tokens {
+            refreshToken
+            accessToken
+        }
+    }
+}`
 
 export default function SignIn() {
-    const {signIn, isLoading} = useAuthContext();
+    const [signIn, {loading}] = useMutation(SIGN_IN);
 
     const handleSubmit = (event) => {
         event.preventDefault();
         const data = new FormData(event.currentTarget);
+
         signIn({
-            email: data.get("email"),
-            password: data.get("password")
+            variables: {
+                email: data.get("email"),
+                password: data.get("password")
+            },
+            refetchQueries: ['checkAuth']
         })
+            .then(({data: {signIn: {tokens: {accessToken}}}}) => {
+                localStorage.setItem("accessToken", accessToken);
+            })
     };
 
     return (
@@ -71,7 +92,7 @@ export default function SignIn() {
                     {/*    label="Remember me"*/}
                     {/*/>*/}
                     <LoadingButton
-                        loading={isLoading}
+                        loading={loading}
                         type="submit"
                         fullWidth
                         variant="contained"

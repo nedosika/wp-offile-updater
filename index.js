@@ -18,8 +18,8 @@ app.use(cors({
 }));
 app.use(cookieParser());
 app.use('/graphql', graphqlHTTP((req, res) => {
-    const authorizationHeader = req.headers.authorization;
-    const accessToken  = authorizationHeader.split(' ')[1];
+    const {authorization} = req.headers;
+    const accessToken  = authorization?.split(' ')[1];
     const {refreshToken} = req.cookies;
 
     return ({

@@ -1,4 +1,4 @@
-import {GraphQLID, GraphQLList} from "graphql";
+import {GraphQLError, GraphQLID, GraphQLList} from "graphql";
 
 import {TaskType} from "../types/Tasks/Taks.js";
 import TasksService from "../../services/TasksService.js";
@@ -9,10 +9,17 @@ const task = {
     type: TaskType,
     args: {id: {type: GraphQLID}},
     async resolve(parent, {id}, {accessToken}){
-        if(validateToken({token: accessToken, key: CONFIG.JWT.ACCESS.SECRET_KEY}))
-            return await TasksService.getTaskById(id);
-        return {error: 'Unauthorized error'}
+        if(validateToken({token: accessToken, key: CONFIG.JWT.ACCESS.SECRET_KEY})){
+            console.log('auth',accessToken)
+            const task = await TasksService.getTaskById(id);
+            return task
+        }
 
+        console.log('unauth')
+
+        throw new GraphQLError(
+            'UNAUTHENTICATED'
+        );
     }
 }
 
@@ -21,7 +28,12 @@ const tasks = {
     async resolve(parent, args, {accessToken, refreshToken}){
         if(validateToken({token: accessToken, key: CONFIG.JWT.ACCESS.SECRET_KEY}))
             return await TasksService.getAllTasks();
-        return {error: 'Unauthorized error'}
+        throw new GraphQLError('User is not authenticated', {
+            extensions: {
+                code: 'UNAUTHENTICATED',
+                http: { status: 401 },
+            },
+        });
     }
 }
 

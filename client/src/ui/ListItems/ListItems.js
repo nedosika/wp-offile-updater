@@ -10,7 +10,7 @@ import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import PeopleIcon from '@mui/icons-material/People';
 import BarChartIcon from '@mui/icons-material/BarChart';
 import LayersIcon from '@mui/icons-material/Layers';
-import {useAuthContext} from "../../contexts/AuthContext";
+import {gql, useMutation} from "@apollo/client";
 
 export const MainListItems = () => {
     const navigate = useNavigate();
@@ -49,11 +49,27 @@ export const MainListItems = () => {
     </>
 }
 
+const SIGN_OUT = gql`mutation signOut{
+    signOut{
+        message
+        error
+    }
+}`
+
 export const SecondaryListItems = () => {
-    const {signOut} = useAuthContext();
+    const [signOut] = useMutation(SIGN_OUT, {
+        refetchQueries: ['checkAuth']
+    });
+
+    const handleSignOut = () =>
+        signOut()
+            .then(() => {
+                localStorage.removeItem("accessToken");
+            })
+
     return (
         <>
-            <ListItemButton onClick={signOut}>
+            <ListItemButton onClick={handleSignOut}>
                 <ListItemIcon>
                     <LogoutIcon/>
                 </ListItemIcon>

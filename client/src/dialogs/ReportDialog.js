@@ -8,16 +8,17 @@ import Typography from "@mui/material/Typography";
 import Button from "@mui/material/Button";
 import Box from "@mui/material/Box";
 import Slide from "@mui/material/Slide";
-import { DataGrid } from '@mui/x-data-grid';
+import {DataGrid} from '@mui/x-data-grid';
 import {DIALOGS, useDialogContext} from "../contexts/DialogContext";
 import {gql, useQuery} from "@apollo/client";
+import {Backdrop, CircularProgress} from "@mui/material";
 
 const Transition = React.forwardRef((props, ref) =>
     <Slide direction="up" ref={ref} {...props} />
 );
 
 const columns = [
-    { field: 'id', headerName: 'ID', width: 60 },
+    {field: 'id', headerName: 'ID', width: 60},
     {
         field: 'link',
         headerName: 'Url',
@@ -49,16 +50,21 @@ const columns = [
     },
 ];
 
+const GET_TASK = gql`query task($id: ID!){
+    task(id: $id){
+        name
+        status {
+            start
+        }
+    }
+}`;
+
 const ReportDialog = ({id}) => {
     const {dialogs: {[DIALOGS.reportDialog]: isOpen}, toggleDialog} = useDialogContext();
-    const GET_TASK = gql`query {
-        task(id: ${id}){
-            name
-        }
-    }`;
-    const {loading, error, data: task} = useQuery(GET_TASK);
 
-    const posts = task && JSON.parse(task.posts) || [];
+    const {loading, error, data} = useQuery(GET_TASK, {
+        variables: {id},
+    });
 
     const closeDialog = () =>
         toggleDialog(DIALOGS.reportDialog);
@@ -80,20 +86,21 @@ const ReportDialog = ({id}) => {
                         <CloseIcon/>
                     </IconButton>
                     <Typography sx={{ml: 2, flex: 1}} variant="h6" component="div">
-                        Added posts in {task?.name}
+                        Added posts in {data?.task?.name}
                     </Typography>
                     <Button autoFocus color="inherit" onClick={closeDialog}>
                         Close
                     </Button>
                 </Toolbar>
             </AppBar>
-            <Box sx={{ height: 400, width: '100%', padding: '10px 10px 0 10px' }}>
+            <Box sx={{height: 400, width: '100%', padding: '10px 10px 0 10px'}}>
                 <DataGrid
-                    rows={posts}
+                    rows={data?.task?.report?.posts || []}
                     columns={columns}
                     pageSize={10}
                     rowsPerPageOptions={[5, 10, 15]}
                     getRowId={(row) => row.slug}
+                    loading={loading}
                 />
             </Box>
         </Dialog>

@@ -89,7 +89,7 @@ const refresh = async (refreshToken) => {
 
     await UsersService.updateUser(id, {refreshToken: tokens.refreshToken});
 
-    return {tokens}
+    return {tokens, user}
 }
 
 const AuthService = {

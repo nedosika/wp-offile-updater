@@ -9,7 +9,28 @@ import {RefreshResponseType} from "./types/Users/RefreshResponse.js";
 const RootQuery = new GraphQLObjectType({
     name: 'RootQuery',
     fields: {
-        ...TasksQueries
+        ...TasksQueries,
+        refresh: {
+            type: RefreshResponseType,
+            async resolve(parent, props, {res, refreshToken}) {
+                const {tokens, user, error} = await AuthService.refresh(refreshToken);
+
+                if(tokens){
+                    res.cookie(
+                        'refreshToken',
+                        tokens.refreshToken,
+                        {
+                            maxAge: 30 * 24 * 60 * 60 * 1000,
+                            httpOnly: true
+                        }
+                    );
+
+                    return {accessToken: tokens.accessToken, user}
+                }
+
+                return {error} || {error: 'Unknown error!'}
+            }
+        }
     }
 })
 
@@ -64,27 +85,6 @@ const Mutation = new GraphQLObjectType({
                 if(message){
                     res.clearCookie('refreshToken');
                     return {message}
-                }
-
-                return {error} || {error: 'Unknown error!'}
-            }
-        },
-        refresh: {
-            type: RefreshResponseType,
-            async resolve(parent, props, {res, refreshToken}) {
-                const {tokens, error} = await AuthService.refresh(refreshToken);
-
-                if(tokens){
-                    res.cookie(
-                        'refreshToken',
-                        tokens.refreshToken,
-                        {
-                            maxAge: 30 * 24 * 60 * 60 * 1000,
-                            httpOnly: true
-                        }
-                    );
-
-                    return {accessToken: tokens.accessToken}
                 }
 
                 return {error} || {error: 'Unknown error!'}

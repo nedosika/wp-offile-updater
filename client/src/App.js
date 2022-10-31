@@ -2,13 +2,27 @@ import {Navigate, Route, Routes} from "react-router-dom";
 import ProtectedRoutes from "./components/ProtectedRoutes";
 import Tasks from "./pages/Tasks";
 import SignIn from "./pages/SignIn";
-import {useAuthContext} from "./contexts/AuthContext";
 import {Backdrop, CircularProgress} from "@mui/material";
+import {gql, useMutation, useQuery} from "@apollo/client";
+import {useEffect} from "react";
+
+const CHECK_AUTH = gql`query checkAuth {
+  refresh{
+    accessToken,
+    error
+  }
+}`;
 
 function App() {
-    const {isAuth, isCheckingAuth} = useAuthContext();
+    const {data, loading, error} = useQuery(CHECK_AUTH);
+    const accessToken = data?.refresh.accessToken;
+    const isAuth = !!accessToken;
 
-    if (isCheckingAuth) return <Backdrop
+    useEffect(() => {
+        accessToken && localStorage.setItem("accessToken", accessToken);
+    }, [data]);
+
+    if (loading) return <Backdrop
         sx={{color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1}}
         open
     >
