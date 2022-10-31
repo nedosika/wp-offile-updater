@@ -29,8 +29,8 @@ const REFRESH = gql`query refresh {
 
 const getNewToken = () => {
     return apolloClient.query({query: REFRESH}).then((response) => {
-        // extract your accessToken from your response data and return it
-        const {accessToken} = response.data;
+        const {accessToken} = response.data.refresh;
+        localStorage.setItem("accessToken", accessToken)
         return accessToken;
     });
 };
