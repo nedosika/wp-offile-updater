@@ -14,24 +14,13 @@ import Link from "@mui/material/Link";
 import LoadingButton from "@mui/lab/LoadingButton/LoadingButton";
 import Copyright from "../../components/Copyright";
 
-import {gql, useMutation} from "@apollo/client";
-
-const SIGN_IN = gql`mutation signIn($email: String!, $password: String!){
-    signIn(email: $email, password: $password){
-        user{
-            id
-            name
-            email
-        }
-        tokens {
-            refreshToken
-            accessToken
-        }
-    }
-}`
+import {useMutation} from "@apollo/client";
+import {SIGN_IN} from "../../apollo/mutations";
 
 export default function SignIn() {
-    const [signIn, {loading}] = useMutation(SIGN_IN);
+    const [signIn, {loading}] = useMutation(SIGN_IN, {
+        refetchQueries: ['refreshToken']
+    });
 
     const handleSubmit = (event) => {
         event.preventDefault();
@@ -41,12 +30,8 @@ export default function SignIn() {
             variables: {
                 email: data.get("email"),
                 password: data.get("password")
-            },
-            refetchQueries: ['checkAuth']
+            }
         })
-            .then(({data: {signIn: {tokens: {accessToken}}}}) => {
-                localStorage.setItem("accessToken", accessToken);
-            })
     };
 
     return (

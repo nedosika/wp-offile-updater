@@ -1,4 +1,4 @@
-import {GraphQLObjectType, GraphQLSchema, GraphQLString} from "graphql";
+import {GraphQLError, GraphQLObjectType, GraphQLSchema, GraphQLString} from "graphql";
 import TasksQueries from "./queries/TasksQueries.js";
 import {SignUpResponseType} from "./types/Users/SignUpResponse.js";
 import {SignInResponseType} from "./types/Users/SignInResponse.js";
@@ -10,9 +10,11 @@ const RootQuery = new GraphQLObjectType({
     name: 'RootQuery',
     fields: {
         ...TasksQueries,
-        refresh: {
+        refreshToken: {
             type: RefreshResponseType,
-            async resolve(parent, props, {res, refreshToken}) {
+            async resolve(parent, props, {res, req}) {
+                console.log('refresh')
+                const refreshToken = req.cookies?.refreshToken;
                 const {tokens, user, error} = await AuthService.refresh(refreshToken);
 
                 if(tokens){
@@ -25,10 +27,9 @@ const RootQuery = new GraphQLObjectType({
                         }
                     );
 
-                    return {accessToken: tokens.accessToken, user}
+                    return {tokens, user}
                 }
-
-                return {error} || {error: 'Unknown error!'}
+                throw new GraphQLError('UNAUTHENTICATED');
             }
         }
     }
@@ -78,18 +79,14 @@ const Mutation = new GraphQLObjectType({
         },
         signOut: {
             type: SignOutResponseType,
-            async resolve(parent, props, {res, refreshToken}){
+            async resolve(parent, props, {res, req}){
+                const refreshToken = req.cookies?.refreshToken;
+                const {error} = await AuthService.signOut(refreshToken);
 
-                const {error, message} = await AuthService.signOut(refreshToken);
-
-                if(message){
-                    res.clearCookie('refreshToken');
-                    return {message}
-                }
-
-                return {error} || {error: 'Unknown error!'}
+                res.clearCookie('refreshToken');
+                return {refreshToken, error}
             }
-        }
+        },
     })
 })
 

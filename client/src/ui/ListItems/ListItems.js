@@ -11,6 +11,9 @@ import PeopleIcon from '@mui/icons-material/People';
 import BarChartIcon from '@mui/icons-material/BarChart';
 import LayersIcon from '@mui/icons-material/Layers';
 import {gql, useMutation} from "@apollo/client";
+import {SIGN_OUT} from "../../apollo/mutations";
+import {REFRESH_TOKEN} from "../../apollo/queries";
+import {apolloClient} from "../../apollo/client";
 
 export const MainListItems = () => {
     const navigate = useNavigate();
@@ -49,27 +52,14 @@ export const MainListItems = () => {
     </>
 }
 
-const SIGN_OUT = gql`mutation signOut{
-    signOut{
-        message
-        error
-    }
-}`
-
 export const SecondaryListItems = () => {
     const [signOut] = useMutation(SIGN_OUT, {
-        refetchQueries: ['checkAuth']
+        refetchQueries: ['refreshToken']
     });
-
-    const handleSignOut = () =>
-        signOut()
-            .then(() => {
-                localStorage.removeItem("accessToken");
-            })
 
     return (
         <>
-            <ListItemButton onClick={handleSignOut}>
+            <ListItemButton onClick={signOut}>
                 <ListItemIcon>
                     <LogoutIcon/>
                 </ListItemIcon>

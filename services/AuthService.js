@@ -20,6 +20,8 @@ const signIn = async (email, password) => {
 
     const tokens = generateTokens({id: user.id});
 
+    await UsersService.updateUser(user.id, {refreshToken: tokens.refreshToken});
+
     return {user, tokens}
 }
 
@@ -42,7 +44,7 @@ const signUp = async (email, password, username) => {
 
     const tokens = generateTokens({id});
 
-    await UsersService.updateUser(user.id, {tokens});
+    await UsersService.updateUser(id, {refreshToken: tokens.refreshToken});
 
     return {
         user: {
@@ -65,9 +67,9 @@ const signOut = async (refreshToken) => {
     if(!id)
         return {error: "Token invalid"}
 
-    await UsersService.updateUser(id, {tokens: {}});
+    const user = await UsersService.updateUser(id, {refreshToken: null});
 
-    return {message: "Sign out"}
+    return {refreshToken}
 }
 
 const refresh = async (refreshToken) => {
@@ -82,7 +84,7 @@ const refresh = async (refreshToken) => {
         return {error: 'Unauthorized'}
 
     const user = await UsersService.getUserById(id);
-    if(!user)
+    if(user?.refreshToken !== refreshToken)
         return {error: 'Unauthorized'}
 
     const tokens = generateTokens({id});
