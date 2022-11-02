@@ -22,22 +22,16 @@ import IconButton from '@mui/material/IconButton';
 import Layout from "../../layout";
 import {DIALOGS, useDialogContext} from "../../contexts/DialogContext";
 import {gql, useQuery} from "@apollo/client";
-
-const GET_TASKS = gql`query {
-  tasks{
-    id
-    name
-    status {
-      start
-    }
-  }
-}`;
+import {GET_TASKS} from "../../apollo/queries";
 
 const formatDate = (date) =>
     `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()} ${date.getHours()}:${date.getMinutes()}`;
 
 const Tasks = () => {
     const {loading, error, data} = useQuery(GET_TASKS);
+
+    console.log(error, data)
+
     const {toggleDialog} = useDialogContext();
 
     const openCreateTaskDialog = () =>
@@ -58,9 +52,6 @@ const Tasks = () => {
     return (
         <Layout title='Tasks'>
             <Container maxWidth="lg" sx={{mt: 4, mb: 4}}>
-                {
-                    error ? <div>{error}</div> : null
-                }
                 {
                     loading
                         ? <Backdrop
