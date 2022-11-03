@@ -24,18 +24,16 @@ const Transition = React.forwardRef((props, ref) =>
 
 export default function CreateTaskDialog() {
     const {createTask} = useTasksContext();
-    const {dialogs: {[DIALOGS.createTaskDialog]: isOpen}, toggleDialog} = useDialogContext();
+    const {closeDialog} = useDialogContext();
 
-    const closeDialog = () =>
-        toggleDialog(DIALOGS.createTaskDialog);
-
-    const handleCreateTask = () =>
+    const handleCreateTask = () => {
         createTask().then(closeDialog)
+    }
 
     return (
         <Dialog
             fullScreen
-            open={isOpen}
+            open
             onClose={closeDialog}
             TransitionComponent={Transition}
         >

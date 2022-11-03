@@ -10,20 +10,17 @@ const Transition = React.forwardRef(function Transition(props, ref) {
 
 const DeleteDialog = ({id}) => {
     const {removeTask, isLoading} = useTasksContext();
-    const {dialogs: {[DIALOGS.deleteDialog]: isOpen}, toggleDialog} = useDialogContext();
-
-    const handleClose = () =>
-        toggleDialog(DIALOGS.deleteDialog);
+    const {closeDialog} = useDialogContext();
 
     const handleRemove = () =>
-        removeTask(id).then(() => toggleDialog(DIALOGS.deleteDialog));
+        removeTask(id).then(closeDialog);
 
     return (
         <Dialog
-            open={isOpen}
+            open
             TransitionComponent={Transition}
             keepMounted
-            onClose={handleClose}
+            onClose={closeDialog}
         >
             <DialogTitle>{"Delete task"}</DialogTitle>
             <DialogContent>
@@ -32,7 +29,7 @@ const DeleteDialog = ({id}) => {
                 </DialogContentText>
             </DialogContent>
             <DialogActions>
-                <Button onClick={handleClose}>Disagree</Button>
+                <Button onClick={closeDialog}>Disagree</Button>
                 <LoadingButton loading={isLoading} onClick={handleRemove}>Agree</LoadingButton>
             </DialogActions>
         </Dialog>
