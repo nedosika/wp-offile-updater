@@ -1,14 +1,14 @@
-import {createContext, useContext, useState} from "react";
+import {createContext, createElement, useContext, useState} from "react";
 import ReportDialog from "../dialogs/ReportDialog";
 import ErrorsDialog from "../dialogs/ErrorsDialog";
 import DeleteDialog from "../dialogs/DeleteDialog";
 import CreateTaskDialog from "../dialogs/CreateTaskDialog";
 
 export const DIALOGS = {
-    createTaskDialog: 'createTaskDialog',
-    reportDialog: 'reportDialog',
-    errorsDialog: 'errorsDialog',
-    deleteDialog: 'deleteDialog'
+    createTaskDialog: CreateTaskDialog,
+    reportDialog: ReportDialog,
+    errorsDialog: ErrorsDialog,
+    deleteDialog: DeleteDialog
 }
 
 const DialogContext = createContext({});
@@ -16,32 +16,26 @@ const DialogContext = createContext({});
 export const useDialogContext = () => useContext(DialogContext);
 
 export const DialogProvider = ({children}) => {
-    const [dialogs, setDialogs] = useState({
-        [DIALOGS.createTaskDialog]: false,
-        [DIALOGS.reportDialog]: false,
-        [DIALOGS.errorsDialog]: false,
-        [DIALOGS.deleteDialog]: false
-    });
-    const [options, setOptions] = useState({});
+    const [dialogs, setDialogs] = useState([]);
 
-    const toggleDialog = (dialog, options) =>
-    {
-        setOptions((prevState) => ({...prevState, [dialog]: options}));
-        setDialogs((prevState) => ({
-            ...prevState,
-            [dialog]: !prevState[dialog]
-        }));
+    const openDialog = ({dialog, props = {}}) => {
+        setDialogs((prevState) => [...prevState, {dialog, props}]);
+    }
+
+    const closeDialog = () => {
+        setDialogs((prevState) => prevState.slice(0, dialogs.length - 1));
     }
 
     return <DialogContext.Provider value={{
-        dialogs,
-        toggleDialog
+        openDialog,
+        closeDialog
     }}>
         {children}
-        <CreateTaskDialog/>
-        <ReportDialog {...options[DIALOGS.reportDialog]}/>
-        <ErrorsDialog {...options[DIALOGS.errorsDialog]}/>
-        <DeleteDialog {...options[DIALOGS.deleteDialog]}/>
+        {
+            dialogs.map(({dialog, props}, index) =>
+                createElement(dialog, {...props, key: index})
+            )
+        }
     </DialogContext.Provider>
 }
 

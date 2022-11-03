@@ -50,7 +50,7 @@ const TasksProvider = ({children}) => {
 
     return <TasksContext.Provider value={{
         task,
-        setTask
+        setTask: (field) => setTask((prevState) => ({...prevState, field}))
     }}>
         {children}
     </TasksContext.Provider>

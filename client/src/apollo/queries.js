@@ -22,3 +22,12 @@ export const GET_TASKS = gql`
         }
     }
 `;
+
+export const GET_TASK = gql`query getTask($id: ID!){
+    task(id: $id){
+        name
+        status {
+            start
+        }
+    }
+}`;

@@ -12,6 +12,7 @@ import {DataGrid} from '@mui/x-data-grid';
 import {DIALOGS, useDialogContext} from "../contexts/DialogContext";
 import {gql, useQuery} from "@apollo/client";
 import {Backdrop, CircularProgress} from "@mui/material";
+import {GET_TASK} from "../apollo/queries";
 
 const Transition = React.forwardRef((props, ref) =>
     <Slide direction="up" ref={ref} {...props} />
@@ -50,29 +51,17 @@ const columns = [
     },
 ];
 
-const GET_TASK = gql`query task($id: ID!){
-    task(id: $id){
-        name
-        status {
-            start
-        }
-    }
-}`;
-
 const ReportDialog = ({id}) => {
-    const {dialogs: {[DIALOGS.reportDialog]: isOpen}, toggleDialog} = useDialogContext();
+    const {closeDialog} = useDialogContext();
 
     const {loading, error, data} = useQuery(GET_TASK, {
         variables: {id},
     });
 
-    const closeDialog = () =>
-        toggleDialog(DIALOGS.reportDialog);
-
     return (
         <Dialog
             fullScreen
-            open={isOpen}
+            open
             onClose={closeDialog}
             TransitionComponent={Transition}
         >
@@ -86,7 +75,7 @@ const ReportDialog = ({id}) => {
                         <CloseIcon/>
                     </IconButton>
                     <Typography sx={{ml: 2, flex: 1}} variant="h6" component="div">
-                        Added posts in {data?.task?.name}
+                        Added posts in {data?.task.name}
                     </Typography>
                     <Button autoFocus color="inherit" onClick={closeDialog}>
                         Close

@@ -8,7 +8,7 @@ import AccordionItem from "../../components/Accordion/AccordionItem";
 
 const SiteMap = () => {
     const {task, setTask} = useTasksContext();
-    const {enqueueSnackbar} = useSnackbar()
+    const {enqueueSnackbar} = useSnackbar();
 
     const handleLoad = (parser) => ({target: {files}}) => {
         parser

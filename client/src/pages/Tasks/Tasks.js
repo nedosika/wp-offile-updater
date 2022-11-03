@@ -20,9 +20,13 @@ import CancelIcon from '@mui/icons-material/Cancel';
 import IconButton from '@mui/material/IconButton';
 
 import Layout from "../../layout";
-import {DIALOGS, useDialogContext} from "../../contexts/DialogContext";
+import {useDialogContext} from "../../contexts/DialogContext";
 import {gql, useQuery} from "@apollo/client";
 import {GET_TASKS} from "../../apollo/queries";
+import CreateTaskDialog from "../../dialogs/CreateTaskDialog";
+import ErrorsDialog from "../../dialogs/ErrorsDialog";
+import ReportDialog from "../../dialogs/ReportDialog";
+import DeleteDialog from "../../dialogs/DeleteDialog";
 
 const formatDate = (date) =>
     `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()} ${date.getHours()}:${date.getMinutes()}`;
@@ -30,24 +34,7 @@ const formatDate = (date) =>
 const Tasks = () => {
     const {loading, error, data} = useQuery(GET_TASKS);
 
-    console.log(error, data)
-
-    const {toggleDialog} = useDialogContext();
-
-    const openCreateTaskDialog = () =>
-        toggleDialog(DIALOGS.createTaskDialog);
-
-    const openReportDialog = (id) => () => {
-        toggleDialog(DIALOGS.reportDialog, {id});
-    }
-
-    const openErrorsDialog = (id) => () => {
-        toggleDialog(DIALOGS.errorsDialog, {id});
-    }
-
-    const openDeleteDialog = (id) => () => {
-        toggleDialog(DIALOGS.deleteDialog, {id});
-    }
+    const {openDialog} = useDialogContext();
 
     return (
         <Layout title='Tasks'>
@@ -74,24 +61,30 @@ const Tasks = () => {
                                     </TableRow>
                                 </TableHead>
                                 <TableBody>
-                                    {data.tasks.map((task) => (
+                                    {data.tasks.map(({id, status, name, progress}) => (
                                         <TableRow
-                                            key={task.id}
+                                            key={id}
                                             sx={{'&:last-child td, &:last-child th': {border: 0}}}
                                         >
-                                            <TableCell>{task.status.start}</TableCell>
-                                            <TableCell>{task.name}</TableCell>
-                                            <TableCell>{task.status.error}</TableCell>
-                                            <TableCell>{task.status.stop}</TableCell>
-                                            <TableCell>{task.progress && `${task.progress} %`}</TableCell>
+                                            <TableCell>{status.start}</TableCell>
+                                            <TableCell>{name}</TableCell>
+                                            <TableCell>{status.error}</TableCell>
+                                            <TableCell>{status.stop}</TableCell>
+                                            <TableCell>{progress && `${progress} %`}</TableCell>
                                             <TableCell align='right'>
                                                 <Tooltip title="Added posts" arrow>
-                                                    <IconButton size="small" onClick={openReportDialog(task.id)}>
+                                                    <IconButton size="small" onClick={() => openDialog({
+                                                        dialog: ReportDialog,
+                                                        props: {id}
+                                                    })}>
                                                         <AssessmentIcon fontSize="inherit"/>
                                                     </IconButton>
                                                 </Tooltip>
                                                 <Tooltip title="Errors" arrow>
-                                                    <IconButton size="small" onClick={openErrorsDialog(task.id)}>
+                                                    <IconButton size="small" onClick={() => openDialog({
+                                                        dialog: ErrorsDialog,
+                                                        props: {id}
+                                                    })}>
                                                         <ErrorIcon fontSize="inherit"/>
                                                     </IconButton>
                                                 </Tooltip>
@@ -106,7 +99,10 @@ const Tasks = () => {
                                                     </IconButton>
                                                 </Tooltip>
                                                 <Tooltip title="Remove task" arrow>
-                                                    <IconButton size="small" onClick={openDeleteDialog(task.id)}>
+                                                    <IconButton size="small" onClick={() => openDialog({
+                                                        dialog: DeleteDialog,
+                                                        props: {id}
+                                                    })}>
                                                         <DeleteIcon fontSize="inherit"/>
                                                     </IconButton>
                                                 </Tooltip>
@@ -124,7 +120,7 @@ const Tasks = () => {
                         right: 16
                     }}
                     color='primary'
-                    onClick={openCreateTaskDialog}
+                    onClick={() => openDialog({dialog: CreateTaskDialog})}
                 >
                     <AddIcon/>
                 </Fab>
