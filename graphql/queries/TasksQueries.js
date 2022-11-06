@@ -1,6 +1,6 @@
 import {GraphQLError, GraphQLID, GraphQLList} from "graphql";
 
-import {TaskType} from "../types/Tasks/Taks.js";
+import {TaskType} from "../types/Tasks/Task.js";
 import TasksService from "../../services/TasksService.js";
 import validateToken from "../../helpers/validateToken.js";
 import CONFIG from "../../config.js";

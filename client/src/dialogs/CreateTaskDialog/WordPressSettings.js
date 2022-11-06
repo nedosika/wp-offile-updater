@@ -8,14 +8,14 @@ const WordPressSettings = () => {
 
     return (
         <AccordionItem title='API settings'
-              description={task[TASK_FIELDS.wordpressUrl]}>
+              description={task[TASK_FIELDS.wordpressApiUrl]}>
             <TextField
                 label="API"
                 variant="outlined"
                 onChange={(event) => setTask({
-                    [TASK_FIELDS.wordpressUrl]: event.target.value
+                    [TASK_FIELDS.wordpressApiUrl]: event.target.value
                 })}
-                defaultValue={task[TASK_FIELDS.wordpressUrl]}
+                defaultValue={task[TASK_FIELDS.wordpressApiUrl]}
             />
             <TextField
                 label="API username"

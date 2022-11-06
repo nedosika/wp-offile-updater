@@ -1,4 +1,4 @@
-import {TaskType} from "../types/Tasks/Taks.js";
+import {TaskType} from "../types/Tasks/Task.js";
 import {GraphQLID, GraphQLList} from "graphql";
 
 const user = {

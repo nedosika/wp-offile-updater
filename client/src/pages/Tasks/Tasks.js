@@ -32,8 +32,9 @@ const formatDate = (date) =>
     `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()} ${date.getHours()}:${date.getMinutes()}`;
 
 const Tasks = () => {
-    const {loading, error, data} = useQuery(GET_TASKS);
-
+    const {loading, error, data} = useQuery(GET_TASKS, {
+        pollInterval: 500
+    });
     const {openDialog} = useDialogContext();
 
     return (
@@ -66,10 +67,16 @@ const Tasks = () => {
                                             key={id}
                                             sx={{'&:last-child td, &:last-child th': {border: 0}}}
                                         >
-                                            <TableCell>{status.start}</TableCell>
+                                            <TableCell>{new Date(status?.start).toLocaleDateString('uk-UA', {
+                                                year: 'numeric',
+                                                month: 'numeric',
+                                                day: 'numeric',
+                                                hour: '2-digit',
+                                                minute: '2-digit'
+                                            })}</TableCell>
                                             <TableCell>{name}</TableCell>
-                                            <TableCell>{status.error}</TableCell>
-                                            <TableCell>{status.stop}</TableCell>
+                                            <TableCell>{status?.error}</TableCell>
+                                            <TableCell>{status?.stop}</TableCell>
                                             <TableCell>{progress && `${progress} %`}</TableCell>
                                             <TableCell align='right'>
                                                 <Tooltip title="Added posts" arrow>

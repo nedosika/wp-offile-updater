@@ -12,9 +12,44 @@ const getTaskById = async (id) => {
     return allTasks.find((task) => task.id == id);
 }
 
+const createTask = async (task) => {
+    const response = await fetch(
+        `${CONFIG.DATABASE_URL}/${CONFIG.COLLECTIONS.tasks}.json`,
+        {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                ...task,
+                status: {
+                    start: new Date()
+                }
+            })
+        }
+    );
+
+    return await response.json();
+}
+
+const deleteTask = async (id) => {
+    const response = await fetch(
+        `${CONFIG.DATABASE_URL}/${CONFIG.COLLECTIONS.tasks}/${id}.json`,
+        {
+            method: 'DELETE'
+        }
+    );
+
+    return await response.json();
+}
+
+
+
 const TasksService = {
     getAllTasks,
-    getTaskById
+    getTaskById,
+    createTask,
+    deleteTask
 }
 
 export default TasksService;
