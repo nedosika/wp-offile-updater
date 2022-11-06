@@ -1,19 +1,33 @@
 import React from 'react';
-import {Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Slide} from "@mui/material";
+
+import {useMutation} from "@apollo/client";
+
+import {
+    Button,
+    Dialog,
+    DialogActions,
+    DialogContent,
+    DialogContentText,
+    DialogTitle,
+    Slide
+} from "@mui/material";
 import {LoadingButton} from "@mui/lab";
-import {DIALOGS, useDialogContext} from "../contexts/DialogContext";
-import {useTasksContext} from "../contexts/TasksContext";
+
+import {useDialogContext} from "../contexts/DialogContext";
+import {DELETE_TASK} from "../apollo/mutations";
 
 const Transition = React.forwardRef(function Transition(props, ref) {
     return <Slide direction="up" ref={ref} {...props} />;
 });
 
 const DeleteDialog = ({id}) => {
-    const {removeTask, isLoading} = useTasksContext();
+    const [removeTask, {loading}] = useMutation(DELETE_TASK);
     const {closeDialog} = useDialogContext();
 
     const handleRemove = () =>
-        removeTask(id).then(closeDialog);
+        removeTask({
+            variables: {id}
+        }).then(closeDialog);
 
     return (
         <Dialog
@@ -30,7 +44,7 @@ const DeleteDialog = ({id}) => {
             </DialogContent>
             <DialogActions>
                 <Button onClick={closeDialog}>Disagree</Button>
-                <LoadingButton loading={isLoading} onClick={handleRemove}>Agree</LoadingButton>
+                <LoadingButton loading={loading} onClick={handleRemove}>Agree</LoadingButton>
             </DialogActions>
         </Dialog>
     );

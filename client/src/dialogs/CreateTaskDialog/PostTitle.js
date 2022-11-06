@@ -1,14 +1,17 @@
 import React from 'react';
 import TextField from "@mui/material/TextField";
-import {TASK_FIELDS, useTasksContext} from "../../contexts/TasksContext";
+import {order, orderByList, TASK_FIELDS, useTasksContext} from "../../contexts/TasksContext";
 import AccordionItem from "../../components/Accordion/AccordionItem";
 import LabeledCheckBox from "../../ui/LabeledCheckBox";
+import {FormControl, InputLabel, MenuItem, Select} from "@mui/material";
 
 const PostTitle = () => {
     const {task, setTask} = useTasksContext();
     return (
-        <AccordionItem title='Title'
-              description={task[TASK_FIELDS.tagTitle]}>
+        <AccordionItem
+            title='Title'
+            description={task[TASK_FIELDS.tagTitle]}
+        >
             <TextField
                 label="RegExp"
                 variant="outlined"
@@ -33,6 +36,34 @@ const PostTitle = () => {
                 })}
                 checked={task[TASK_FIELDS.isStrongSearch]}
             />
+            <FormControl fullWidth>
+                <InputLabel id="sort-by-label">Sort by</InputLabel>
+                <Select
+                    labelId="sort-by-label"
+                    label="Sort by"
+                    value={task[TASK_FIELDS.orderBy]}
+                    onChange={(event) => setTask({
+                        [TASK_FIELDS.orderBy]: event.target.value
+                    })}
+                >
+                    <MenuItem value={orderByList.title}>Title</MenuItem>
+                    <MenuItem value={orderByList.date}>Date</MenuItem>
+                </Select>
+            </FormControl>
+            <FormControl fullWidth>
+                <InputLabel id="sort-label">Order</InputLabel>
+                <Select
+                    labelId="sort-label"
+                    label="Order"
+                    value={task[TASK_FIELDS.order]}
+                    onChange={(event) => setTask({
+                        [TASK_FIELDS.order]: event.target.value
+                    })}
+                >
+                    <MenuItem value={order.asc}>ASC</MenuItem>
+                    <MenuItem value={order.desc}>DESC</MenuItem>
+                </Select>
+            </FormControl>
         </AccordionItem>
     );
 };

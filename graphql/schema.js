@@ -1,23 +1,55 @@
-import {GraphQLError, GraphQLObjectType, GraphQLSchema, GraphQLString} from "graphql";
-import TasksQueries from "./queries/TasksQueries.js";
+import {
+    GraphQLError,
+    GraphQLID,
+    GraphQLList,
+    GraphQLObjectType,
+    GraphQLSchema,
+    GraphQLString
+} from "graphql";
 import {SignUpResponseType} from "./types/Users/SignUpResponse.js";
 import {SignInResponseType} from "./types/Users/SignInResponse.js";
 import AuthService from "../services/AuthService.js";
 import {SignOutResponseType} from "./types/Users/SignOutResponse.js";
 import {RefreshResponseType} from "./types/Users/RefreshResponse.js";
+import {TaskResponseType} from "./types/Tasks/TaskResponse.js";
+import {TaskType} from "./types/Tasks/Task.js";
+import validateToken from "../helpers/validateToken.js";
+import CONFIG from "../config.js";
+import TasksService from "../services/TasksService.js";
+import {TaskInput} from "./inputs/Tasks/Task.js";
 
 const RootQuery = new GraphQLObjectType({
     name: 'RootQuery',
     fields: {
-        ...TasksQueries,
+        task: {
+            type: TaskType,
+            args: {id: {type: GraphQLID}},
+            async resolve(parent, {id}, {req}) {
+                const {authorization} = req.headers;
+                const accessToken = authorization?.split(' ')[1];
+                if (validateToken({token: accessToken, key: CONFIG.JWT.ACCESS.SECRET_KEY})) {
+                    return await TasksService.getTaskById(id);
+                }
+                throw new GraphQLError('UNAUTHENTICATED');
+            }
+        },
+        tasks: {
+            type: new GraphQLList(TaskType),
+            async resolve(parent, args, {req}){
+                const {authorization} = req.headers;
+                const accessToken  = authorization?.split(' ')[1];
+                if(validateToken({token: accessToken, key: CONFIG.JWT.ACCESS.SECRET_KEY}))
+                    return await TasksService.getAllTasks();
+                throw new GraphQLError('UNAUTHENTICATED');
+            }
+        },
         refreshToken: {
             type: RefreshResponseType,
             async resolve(parent, props, {res, req}) {
-                console.log('refresh')
                 const refreshToken = req.cookies?.refreshToken;
                 const {tokens, user, error} = await AuthService.refresh(refreshToken);
 
-                if(tokens){
+                if (tokens) {
                     res.cookie(
                         'refreshToken',
                         tokens.refreshToken,
@@ -33,7 +65,7 @@ const RootQuery = new GraphQLObjectType({
             }
         }
     }
-})
+});
 
 const Mutation = new GraphQLObjectType({
     name: 'Mutation',
@@ -79,7 +111,7 @@ const Mutation = new GraphQLObjectType({
         },
         signOut: {
             type: SignOutResponseType,
-            async resolve(parent, props, {res, req}){
+            async resolve(parent, props, {res, req}) {
                 const refreshToken = req.cookies?.refreshToken;
                 const {error} = await AuthService.signOut(refreshToken);
 
@@ -87,8 +119,27 @@ const Mutation = new GraphQLObjectType({
                 return {refreshToken, error}
             }
         },
+        createTask: {
+            type: TaskResponseType,
+            args: {
+                task: {type: TaskInput}
+            },
+            async resolve(parent, {task}, {req, res}) {
+                const {name} = await TasksService.createTask(task)
+                console.log(name);
+                return name;
+            }
+        },
+        deleteTask: {
+            type: TaskResponseType,
+            args: {id: {type: GraphQLID}},
+            async resolve(parent, {id}, {res, req}) {
+                const response = await TasksService.deleteTask(id)
+                return id
+            }
+        }
     })
-})
+});
 
 const schema = new GraphQLSchema({
     query: RootQuery,

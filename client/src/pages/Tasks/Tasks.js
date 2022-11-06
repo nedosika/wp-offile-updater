@@ -33,7 +33,6 @@ const formatDate = (date) =>
 
 const Tasks = () => {
     const {loading, error, data} = useQuery(GET_TASKS);
-
     const {openDialog} = useDialogContext();
 
     return (
@@ -66,10 +65,10 @@ const Tasks = () => {
                                             key={id}
                                             sx={{'&:last-child td, &:last-child th': {border: 0}}}
                                         >
-                                            <TableCell>{status.start}</TableCell>
+                                            <TableCell>{status?.start}</TableCell>
                                             <TableCell>{name}</TableCell>
-                                            <TableCell>{status.error}</TableCell>
-                                            <TableCell>{status.stop}</TableCell>
+                                            <TableCell>{status?.error}</TableCell>
+                                            <TableCell>{status?.stop}</TableCell>
                                             <TableCell>{progress && `${progress} %`}</TableCell>
                                             <TableCell align='right'>
                                                 <Tooltip title="Added posts" arrow>
