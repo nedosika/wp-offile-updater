@@ -20,7 +20,12 @@ const createTask = async (task) => {
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify(task)
+            body: JSON.stringify({
+                ...task,
+                status: {
+                    start: new Date()
+                }
+            })
         }
     );
 
