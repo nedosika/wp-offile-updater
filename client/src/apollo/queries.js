@@ -29,5 +29,18 @@ export const GET_TASK = gql`query getTask($id: ID!){
         status {
             start
         }
+        report {
+            errors {
+                url 
+                error
+            }
+            posts {
+                id,            
+                url
+                slug,
+                title,
+                categories
+            }
+        }
     }
 }`;

@@ -6,17 +6,22 @@ import {
     GraphQLSchema,
     GraphQLString
 } from "graphql";
-import {SignUpResponseType} from "./types/Users/SignUpResponse.js";
-import {SignInResponseType} from "./types/Users/SignInResponse.js";
-import AuthService from "../services/AuthService.js";
+
 import {SignOutResponseType} from "./types/Users/SignOutResponse.js";
 import {RefreshResponseType} from "./types/Users/RefreshResponse.js";
+import {SignUpResponseType} from "./types/Users/SignUpResponse.js";
+import {SignInResponseType} from "./types/Users/SignInResponse.js";
 import {TaskResponseType} from "./types/Tasks/TaskResponse.js";
+
 import {TaskType} from "./types/Tasks/Task.js";
-import validateToken from "../helpers/validateToken.js";
-import CONFIG from "../config.js";
-import TasksService from "../services/TasksService.js";
 import {TaskInput} from "./inputs/Tasks/Task.js";
+import validateToken from "../helpers/validateToken.js";
+
+import WordpressService from "../services/WordpressService.js";
+import TasksService from "../services/TasksService.js";
+import AuthService from "../services/AuthService.js";
+
+import CONFIG from "../config.js";
 
 const RootQuery = new GraphQLObjectType({
     name: 'RootQuery',
@@ -125,9 +130,9 @@ const Mutation = new GraphQLObjectType({
                 task: {type: TaskInput}
             },
             async resolve(parent, {task}, {req, res}) {
-                const {name} = await TasksService.createTask(task)
-                console.log(name);
-                return name;
+                console.log(task)
+                const {name: id} = await TasksService.createTask(task);
+                return new WordpressService({id, ...task});
             }
         },
         deleteTask: {
