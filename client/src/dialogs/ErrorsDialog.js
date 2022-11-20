@@ -38,6 +38,8 @@ const ErrorsDialog = ({id}) => {
     });
     const {closeDialog} = useDialogContext();
 
+    console.log(data)
+
     return (
         <Dialog
             fullScreen

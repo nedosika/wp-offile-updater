@@ -34,12 +34,9 @@ export const order = {
 
 
 const initialState = {
-    // [STATE_FIELDS.wordpressUrl]: 'https://wottakk.ru',
     // [STATE_FIELDS.username]: 'admin55',
-    // [STATE_FIELDS.password]: 'sjuF 2lfG rsow 2exs FzWU blhg',
-    // sjuF 2lfG rsow 2exs FzWU blhg
-    // 9ixn TEy0 fkQF dHvb 3uqp CpyD
-    // V8Gh Bu6E COTa 6K81 EOFV w69p - jancel.ru
+    // https://probarcelona.ru/
+    // 37Lz vnLB Kk9N TgzO XqJI hRZb
     task: {
         [TASK_FIELDS.wordpressApiUrl]: '',
         [TASK_FIELDS.username]: '',

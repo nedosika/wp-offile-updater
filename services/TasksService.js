@@ -43,13 +43,27 @@ const deleteTask = async (id) => {
     return await response.json();
 }
 
+const update = async (task) => {
+    const response = await fetch(
+        `${CONFIG.DATABASE_URL}/${CONFIG.COLLECTIONS.tasks}/${task.id}.json`,
+        {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(task)
+        }
+    );
 
+    return await response.json();
+}
 
 const TasksService = {
     getAllTasks,
     getTaskById,
     createTask,
-    deleteTask
+    deleteTask,
+    update
 }
 
 export default TasksService;

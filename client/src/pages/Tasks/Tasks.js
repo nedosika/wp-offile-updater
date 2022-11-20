@@ -62,7 +62,7 @@ const Tasks = () => {
                                     </TableRow>
                                 </TableHead>
                                 <TableBody>
-                                    {data.tasks.map(({id, status, name, progress}) => (
+                                    {data?.tasks?.map(({id, status, name, progress}) => (
                                         <TableRow
                                             key={id}
                                             sx={{'&:last-child td, &:last-child th': {border: 0}}}

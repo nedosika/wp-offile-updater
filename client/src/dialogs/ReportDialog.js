@@ -21,7 +21,7 @@ const Transition = React.forwardRef((props, ref) =>
 const columns = [
     {field: 'id', headerName: 'ID', width: 60},
     {
-        field: 'link',
+        field: 'url',
         headerName: 'Url',
         width: 240,
         editable: true
@@ -37,18 +37,13 @@ const columns = [
         headerName: 'Title',
         width: 200,
         valueGetter: (params) =>
-            `${params.row.title.rendered || ''}`,
+            `${params.row.title || ''}`,
     },
     {
         field: 'categories',
         headerName: 'Categories',
         width: 10,
-    },
-    {
-        field: 'tags',
-        headerName: 'Tags',
-        width: 90
-    },
+    }
 ];
 
 const ReportDialog = ({id}) => {
@@ -57,6 +52,8 @@ const ReportDialog = ({id}) => {
     const {loading, error, data} = useQuery(GET_TASK, {
         variables: {id},
     });
+
+    console.log(data)
 
     return (
         <Dialog

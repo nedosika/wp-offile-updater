@@ -1,5 +1,7 @@
 import * as React from 'react';
 
+import {encode as base64_encode} from 'base-64';
+
 import {useMutation} from "@apollo/client";
 
 import Box from "@mui/material/Box";
@@ -31,6 +33,8 @@ export default function CreateTaskDialog() {
     const [createTask, {data, loading, error}] = useMutation(CREATE_TASK);
     const {closeDialog} = useDialogContext();
 
+    console.log(task)
+
     const variables = {
         task: {
             name: task[TASK_FIELDS.wordpressApiUrl],
@@ -55,8 +59,7 @@ export default function CreateTaskDialog() {
                 }
             },
             wordpress: {
-                login: task[TASK_FIELDS.username],
-                password: task[TASK_FIELDS.password],
+                auth: base64_encode(`${task[TASK_FIELDS.username]}:${task[TASK_FIELDS.password]}`),
                 url: task[TASK_FIELDS.wordpressApiUrl]
             },
             timeout: task[TASK_FIELDS.timeout]
