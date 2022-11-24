@@ -28,14 +28,23 @@ import ErrorsDialog from "../../dialogs/ErrorsDialog";
 import ReportDialog from "../../dialogs/ReportDialog";
 import DeleteDialog from "../../dialogs/DeleteDialog";
 
-const formatDate = (date) =>
-    `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()} ${date.getHours()}:${date.getMinutes()}`;
+const formattedDate = (date) => {
+    return date ? new Date(date).toLocaleDateString('uk-UA', {
+            year: 'numeric',
+            month: 'numeric',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+        }) : ''
+}
 
 const Tasks = () => {
     const {loading, error, data} = useQuery(GET_TASKS, {
         pollInterval: 500
     });
     const {openDialog} = useDialogContext();
+
+    console.log(data);
 
     return (
         <Layout title='Tasks'>
@@ -55,7 +64,6 @@ const Tasks = () => {
                                     <TableRow>
                                         <TableCell>Date</TableCell>
                                         <TableCell>Name of site</TableCell>
-                                        <TableCell>Status</TableCell>
                                         <TableCell>End Date</TableCell>
                                         <TableCell>Progress</TableCell>
                                         <TableCell/>
@@ -67,17 +75,10 @@ const Tasks = () => {
                                             key={id}
                                             sx={{'&:last-child td, &:last-child th': {border: 0}}}
                                         >
-                                            <TableCell>{new Date(status?.start).toLocaleDateString('uk-UA', {
-                                                year: 'numeric',
-                                                month: 'numeric',
-                                                day: 'numeric',
-                                                hour: '2-digit',
-                                                minute: '2-digit'
-                                            })}</TableCell>
+                                            <TableCell>{formattedDate(status?.start)}</TableCell>
                                             <TableCell>{name}</TableCell>
-                                            <TableCell>{status?.error}</TableCell>
-                                            <TableCell>{status?.stop}</TableCell>
-                                            <TableCell>{progress && `${progress} %`}</TableCell>
+                                            <TableCell>{formattedDate(status?.finish)}</TableCell>
+                                            <TableCell>{status?.progress && `${status?.progress} %`}</TableCell>
                                             <TableCell align='right'>
                                                 <Tooltip title="Added posts" arrow>
                                                     <IconButton size="small" onClick={() => openDialog({
@@ -95,16 +96,16 @@ const Tasks = () => {
                                                         <ErrorIcon fontSize="inherit"/>
                                                     </IconButton>
                                                 </Tooltip>
-                                                <Tooltip title="Restart task" arrow>
-                                                    <IconButton size="small">
-                                                        <RestartAltIcon fontSize="inherit"/>
-                                                    </IconButton>
-                                                </Tooltip>
-                                                <Tooltip title="Cancel task" arrow>
-                                                    <IconButton size="small">
-                                                        <CancelIcon fontSize="inherit"/>
-                                                    </IconButton>
-                                                </Tooltip>
+                                                {/*<Tooltip title="Restart task" arrow>*/}
+                                                {/*    <IconButton size="small">*/}
+                                                {/*        <RestartAltIcon fontSize="inherit"/>*/}
+                                                {/*    </IconButton>*/}
+                                                {/*</Tooltip>*/}
+                                                {/*<Tooltip title="Cancel task" arrow>*/}
+                                                {/*    <IconButton size="small">*/}
+                                                {/*        <CancelIcon fontSize="inherit"/>*/}
+                                                {/*    </IconButton>*/}
+                                                {/*</Tooltip>*/}
                                                 <Tooltip title="Remove task" arrow>
                                                     <IconButton size="small" onClick={() => openDialog({
                                                         dialog: DeleteDialog,

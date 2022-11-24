@@ -18,6 +18,8 @@ export const GET_TASKS = gql`
             name
             status {
                 start
+                progress
+                finish
             }
         }
     }
@@ -28,6 +30,8 @@ export const GET_TASK = gql`query getTask($id: ID!){
         name
         status {
             start
+            progress
+            finish
         }
         report {
             errors {

@@ -130,7 +130,6 @@ const Mutation = new GraphQLObjectType({
                 task: {type: TaskInput}
             },
             async resolve(parent, {task}, {req, res}) {
-                console.log(task)
                 const {name: id} = await TasksService.createTask(task);
                 return new WordpressService({id, ...task});
             }

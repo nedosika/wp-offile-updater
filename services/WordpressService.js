@@ -16,7 +16,9 @@ export default class WordpressService {
             posts: [],
             errors: []
         };
-        this.status = {}
+        this.status = {
+            start: new Date()
+        }
 
         this.updatePosts();
 
@@ -104,8 +106,6 @@ export default class WordpressService {
     }
 
     async updatePost({id, data}) {
-        console.log(this.wordpress.auth)
-        console.log(`${this.wordpress.url}/${API.POSTS_API}/${id}`)
         return axios(`${this.wordpress.url}/${API.POSTS_API}/${id}`, {
             method: 'PUT',
             data,
@@ -118,7 +118,7 @@ export default class WordpressService {
 
     updatePosts() {
         this.siteMap.urls.reduce((p, url, index, arr) => p.then(async (prev) => {
-            this.status.progress = Math.ceil((index + 1) * 100 / this.siteMap.length);
+            this.status.progress = Math.ceil((index + 1) * 100 / this.siteMap.urls.length);
 
             try {
                 console.log(url)
@@ -138,7 +138,6 @@ export default class WordpressService {
                 console.log(data);
 
                 const post = await this.updatePost({id, data});
-                console.log(post);
 
                 this.report.posts.push({
                     url,
@@ -148,15 +147,12 @@ export default class WordpressService {
                     id
                 });
 
-                // .catch((error) => {
-                //     console.log(error.message);
-                //     this.report.errors.push({url, error: error.message});
-                //     return {error: error.message}
-                // })
             } catch (error) {
-                console.log(error.message);
                 this.report.errors.push({url, error: error.message});
             }
+
+            await TaskService.update(this);
+
         }), Promise.resolve()).finally(async () => {
             this.status.finish = new Date();
             await TaskService.update(this);
